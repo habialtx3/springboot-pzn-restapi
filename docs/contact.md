@@ -133,6 +133,12 @@ Response Body (Success) :
 ```
 
 Response Body (Failed) :
+```json
+{
+  "errors" : "Unauthorized"
+}
+```
+
 ## Remove Contact
 Endpoint : DELETE /api/contacts/{idContact}
 
