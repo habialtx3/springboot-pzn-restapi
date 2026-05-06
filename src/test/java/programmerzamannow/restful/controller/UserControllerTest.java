@@ -22,6 +22,11 @@ import static org.junit.jupiter.api.Assertions.*;
 @AutoConfigureMockMvc
 
 class UserControllerTest {
+
+    @BeforeEach
+    void setUp() {
+        userRepository.deleteAll();
+    }
     @Autowired
     private MockMvc mockMvc;
 
@@ -30,11 +35,6 @@ class UserControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
-
-    @BeforeEach
-    void setUp() {
-        userRepository.deleteAll();
-    }
 
     @Test
     void testRegisterSuccess() throws Exception {
@@ -57,4 +57,28 @@ class UserControllerTest {
             assertEquals("OK", response.getData());
         });
     }
+
+
+    @Test
+    void testRegisterBadRequest() throws Exception {
+        RegisterUserRequest request = new RegisterUserRequest();
+        request.setUsername(null);
+        request.setPassword("rahasia");
+        request.setName("test");
+
+        mockMvc.perform(
+                post("/api/users")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+        ).andExpectAll(
+                status().isBadRequest()
+        ).andDo(result -> {
+            WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+
+            assertNotNull(response.getErrors());
+        });
+    }
+
 }
