@@ -7,7 +7,7 @@ CREATE TABLE users
     username         VARCHAR(100) NOT NULL,
     password         VARCHAR(100) NOT NULL,
     name             VARCHAR(100) NOT NULL,
-    token            VARCHAR(100) NOT NULL,
+    token            VARCHAR(100) ,
     token_expired_at BIGINT,
     PRIMARY KEY (username),
     UNIQUE (token)
@@ -45,6 +45,6 @@ CREATE TABLE addresses
     postal_code VARCHAR(100),
     PRIMARY KEY (id),
     FOREIGN KEY fk_contacts_addresses (contact_id) REFERENCES contacts (id)
-) ENGINE InnoDB
+) ENGINE InnoDB;
 
 DESC addresses
