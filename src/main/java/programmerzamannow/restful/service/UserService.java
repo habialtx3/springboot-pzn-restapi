@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import programmerzamannow.restful.entity.User;
 import programmerzamannow.restful.model.RegisterUserRequest;
+import programmerzamannow.restful.model.UserResponse;
 import programmerzamannow.restful.repository.UserRepository;
 import programmerzamannow.restful.security.Bcrypt;
 
@@ -39,5 +40,13 @@ public class UserService {
 
         userRepository.save(user);
     }
+
+    public UserResponse get(User user) {
+        return UserResponse.builder()
+                .username(user.getUsername())
+                .name(user.getName())
+                .build();
+    }
+
 
 }
