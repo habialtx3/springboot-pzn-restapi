@@ -121,10 +121,12 @@ class ContactControllerTest {
                     WebResponse<ContactResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<WebResponse<ContactResponse>>() {
                     });
                     assertNull(response.getErrors());
-            assertEquals("Bambang",response.getData().getFirstName());
-            assertEquals("Bambang",response.getData().getLastName());
-            assertEquals("bambang@gmail.com",response.getData().getEmail());
-            assertEquals("0808",response.getData().getPhone());
+                    assertEquals("Bambang", response.getData().getFirstName());
+                    assertEquals("Bambang", response.getData().getLastName());
+                    assertEquals("bambang@gmail.com", response.getData().getEmail());
+                    assertEquals("0808", response.getData().getPhone());
+
+                    assertTrue(contactRepository.existsById(response.getData().getId()));
                 }
         );
     }
