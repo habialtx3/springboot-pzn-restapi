@@ -16,10 +16,9 @@ public class ErrorController {
                 .body(WebResponse.<String>builder().errors(exception.getMessage()).build());
     }
 
-
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<WebResponse<String>> apiException(ResponseStatusException exception) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        return ResponseEntity.status(exception.getStatusCode())
                 .body(WebResponse.<String>builder().errors(exception.getReason()).build());
     }
 }
