@@ -2,12 +2,14 @@ package programmerzamannow.restful.entity;
 
 import jakarta.persistence.*;
 import lombok.Generated;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
 
 @Setter
+@Getter
 @Generated
 @NoArgsConstructor
 @Entity

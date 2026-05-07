@@ -21,22 +21,20 @@ public class UserService {
     private UserRepository userRepository;
 
     @Autowired
-    private Validator validator;
+    private ValidationService validationService;
 
     @Transactional
     public void register(RegisterUserRequest request) {
-        Set<ConstraintViolation<RegisterUserRequest>> constraintViolations = validator.validate(request);
-        if(constraintViolations.size() != 0 ) {
-            throw new ConstraintViolationException(constraintViolations);
-        }
 
-        if(userRepository.existsById(request.getUsername())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Username already registered");
+        validationService.validate(request);
+
+        if (userRepository.existsById(request.getUsername())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username already registered");
         }
 
         User user = new User();
         user.setUsername(request.getUsername());
-        user.setPassword(Bcrypt.hashpw(request.getPassword(),Bcrypt.gensalt()));
+        user.setPassword(Bcrypt.hashpw(request.getPassword(), Bcrypt.gensalt()));
         user.setName(request.getName());
 
         userRepository.save(user);
