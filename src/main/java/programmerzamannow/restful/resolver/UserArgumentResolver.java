@@ -1,6 +1,7 @@
 package programmerzamannow.restful.resolver;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
@@ -15,6 +16,7 @@ import programmerzamannow.restful.entity.User;
 import programmerzamannow.restful.repository.UserRepository;
 
 @Component
+@Slf4j
 public class UserArgumentResolver implements HandlerMethodArgumentResolver {
 
     @Autowired
@@ -35,6 +37,10 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
 
         User user = userRepository.findFirstByToken(token)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized"));
+
+        if(user.getTokenExpiredAt() < System.currentTimeMillis()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
+        }
 
         return user;
     }
