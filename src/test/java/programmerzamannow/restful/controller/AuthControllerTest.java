@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import programmerzamannow.restful.entity.User;
 import programmerzamannow.restful.model.LoginUserRequest;
+import programmerzamannow.restful.model.TokenResponse;
 import programmerzamannow.restful.model.WebResponse;
 import programmerzamannow.restful.repository.UserRepository;
 import programmerzamannow.restful.security.Bcrypt;
@@ -84,6 +85,38 @@ class AuthControllerTest {
             WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(),new TypeReference<>(){
             });
             assertNotNull(response.getErrors());
+        });
+    }
+
+    @Test
+    void loginSuccess() throws Exception {
+        User user = new User();
+        user.setUsername("test");
+        user.setName("test");
+        user.setPassword(Bcrypt.hashpw("test",Bcrypt.gensalt()));
+        userRepository.save(user);
+
+        LoginUserRequest request = new LoginUserRequest();
+        request.setUsername("test");
+        request.setPassword("test");
+
+        mockMvc.perform(
+                post("/api/auth/login")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+        ).andExpectAll(
+                status().isOk()
+        ).andDo(result -> {
+            WebResponse<TokenResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(),new TypeReference<>(){
+            });
+            assertNotNull(response.getData());
+            assertNotNull(response.getData().getExpiredAt());
+
+            User userDb = userRepository.findById("test").orElse(null);
+            assertNotNull(userDb);
+            assertEquals(userDb.getToken(),response.getData().getToken());
+            assertEquals(userDb.getTokenExpiredAt(),response.getData().getExpiredAt());
         });
     }
 }
