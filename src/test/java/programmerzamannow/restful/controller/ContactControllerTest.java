@@ -57,7 +57,7 @@ class ContactControllerTest {
     }
 
     @Test
-    void createContactBadRequest() throws Exception{
+    void createContactBadRequest() throws Exception {
         CreateContactRequest request = new CreateContactRequest();
         request.setFirstName("");
         request.setEmail("salah");
@@ -67,13 +67,64 @@ class ContactControllerTest {
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request))
-                        .header("X-API-TOKEN","test")
+                        .header("X-API-TOKEN", "test")
         ).andExpectAll(
                 status().isBadRequest()
         ).andDo(result -> {
                     WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<WebResponse<String>>() {
                     });
                     assertNotNull(response.getErrors());
+                }
+        );
+    }
+
+    @Test
+    void createContactUnauthorized() throws Exception {
+        CreateContactRequest request = new CreateContactRequest();
+        request.setFirstName("Bambang");
+        request.setLastName("Bambang");
+        request.setPhone("0808080");
+        request.setEmail("reza@gmail.com");
+
+        mockMvc.perform(
+                post("/api/contacts")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+        ).andExpectAll(
+                status().isUnauthorized()
+        ).andDo(result -> {
+                    WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<WebResponse<String>>() {
+                    });
+                    assertNotNull(response.getErrors());
+                }
+        );
+    }
+
+    @Test
+    void createContactSuccess() throws Exception {
+        CreateContactRequest request = new CreateContactRequest();
+        request.setFirstName("Bambang");
+        request.setLastName("Bambang");
+        request.setPhone("0808");
+        request.setEmail("bambang@gmail.com");
+
+        mockMvc.perform(
+                post("/api/contacts")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-API-TOKEN", "test")
+                        .content(objectMapper.writeValueAsString(request))
+        ).andExpectAll(
+                status().isOk()
+        ).andDo(result -> {
+                    WebResponse<ContactResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<WebResponse<ContactResponse>>() {
+                    });
+                    assertNull(response.getErrors());
+            assertEquals("Bambang",response.getData().getFirstName());
+            assertEquals("Bambang",response.getData().getLastName());
+            assertEquals("bambang@gmail.com",response.getData().getEmail());
+            assertEquals("0808",response.getData().getPhone());
                 }
         );
     }
