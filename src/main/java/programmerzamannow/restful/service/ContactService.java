@@ -78,4 +78,11 @@ public class ContactService {
         contactRepository.save(contact);
         return toContactResponse(contact);
     }
+
+    public void delete(User user , String id){
+        Contact contact = contactRepository.findByUserAndId(user,id)
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"Contact not found"));
+
+        contactRepository.delete(contact);
+    }
 }

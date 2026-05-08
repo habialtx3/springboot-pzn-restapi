@@ -22,7 +22,7 @@ public class ContactController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public WebResponse<ContactResponse> create(User user, @RequestBody CreateContactRequest request) {
-        ContactResponse contactResponse = contactService.create(user,request);
+        ContactResponse contactResponse = contactService.create(user, request);
         return WebResponse.<ContactResponse>builder()
                 .data(contactResponse)
                 .build();
@@ -32,9 +32,9 @@ public class ContactController {
             path = "/api/contacts/{contactId}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public WebResponse<ContactResponse> get(User user, String id, @PathVariable String contactId){
-        ContactResponse contactResponse = contactService.get(user,contactId);
-        return  WebResponse.<ContactResponse>builder()
+    public WebResponse<ContactResponse> get(User user, String id, @PathVariable String contactId) {
+        ContactResponse contactResponse = contactService.get(user, contactId);
+        return WebResponse.<ContactResponse>builder()
                 .data(contactResponse)
                 .build();
     }
@@ -50,10 +50,19 @@ public class ContactController {
 
         request.setId(contactId);
 
-        ContactResponse contactResponse = contactService.update(user,request);
+        ContactResponse contactResponse = contactService.update(user, request);
         return WebResponse.<ContactResponse>builder()
                 .data(contactResponse)
                 .build();
+    }
+
+    @DeleteMapping(
+            path = "/api/contacts/{contactId}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public WebResponse<String> update(User user, @PathVariable("contactId") String contactId) {
+        contactService.delete(user,contactId);
+        return WebResponse.<String>builder().data("OK").build();
     }
 
 

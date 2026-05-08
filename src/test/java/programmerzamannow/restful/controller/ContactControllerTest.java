@@ -153,7 +153,7 @@ class ContactControllerTest {
     @Test
     void getContactSuccess() throws Exception {
 
-        User user = userRepository.findById("test").orElseThrow(null);
+        User user = userRepository.findById("test").orElse(null);
 
         Contact contact = new Contact();
         contact.setId("test");
@@ -211,7 +211,7 @@ class ContactControllerTest {
     @Test
     void updateContactSuccess() throws Exception {
 
-        User user = userRepository.findById("test").orElseThrow(null);
+        User user = userRepository.findById("test").orElse(null);
 
         Contact contact = new Contact();
         contact.setId("test");
@@ -240,8 +240,68 @@ class ContactControllerTest {
                     });
                     assertNull(response.getErrors());
                     assertEquals("bambang", response.getData().getFirstName());
-                     assertEquals("salah@gmail.com", response.getData().getEmail());
+                    assertEquals("salah@gmail.com", response.getData().getEmail());
                 }
         );
+    }
+
+    @Test
+    void deleteContactNotFound() throws Exception {
+        User user = userRepository.findById("test").orElse(null);
+
+        Contact contact = new Contact();
+        contact.setId("test");
+        contact.setFirstName("test");
+        contact.setLastName("test");
+        contact.setUser(user);
+        contact.setPhone("test");
+        contact.setEmail("test@gmail.com");
+
+        contactRepository.save(contact);
+
+        mockMvc.perform(
+                delete("/api/contacts/123")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-API-TOKEN", "test")
+        ).andExpectAll(
+                status().isNotFound()
+        ).andDo(result -> {
+            WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNotNull(response.getErrors());
+        });
+    }
+
+    @Test
+    void deleteContactSuccess() throws Exception {
+        User user = userRepository.findById("test").orElse(null);
+
+        Contact contact = new Contact();
+        contact.setId("test");
+        contact.setFirstName("test");
+        contact.setLastName("test");
+        contact.setUser(user);
+        contact.setPhone("test");
+        contact.setEmail("test@gmail.com");
+
+        contactRepository.save(contact);
+
+        mockMvc.perform(
+                delete("/api/contacts/test")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-API-TOKEN", "test")
+        ).andExpectAll(
+                status().isOk()
+        ).andDo(result -> {
+            WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getErrors());
+
+            Contact contactExist = contactRepository.findByUserAndId(user, "test").orElse(null);
+
+            assertNull(contactExist);
+            assertEquals("OK", response.getData());
+
+        });
     }
 }
