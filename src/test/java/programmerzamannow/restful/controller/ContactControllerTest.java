@@ -131,5 +131,22 @@ class ContactControllerTest {
         );
     }
 
+    @Test
+    void getContactBadRequest() throws Exception {
+        mockMvc.perform(
+                get("/api/contacts/waduh")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-API-TOKEN", "test")
+        ).andExpectAll(
+                status().isNotFound()
+        ).andDo(result -> {
+                    WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<WebResponse<String>>() {
+                    });
+                    assertNotNull(response.getErrors());
+                }
+        );
+    }
+
 
 }
