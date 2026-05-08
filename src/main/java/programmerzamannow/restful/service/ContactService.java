@@ -9,6 +9,7 @@ import programmerzamannow.restful.entity.Contact;
 import programmerzamannow.restful.entity.User;
 import programmerzamannow.restful.model.ContactResponse;
 import programmerzamannow.restful.model.CreateContactRequest;
+import programmerzamannow.restful.model.UpdateContactRequest;
 import programmerzamannow.restful.repository.ContactRepository;
 
 import java.util.UUID;
@@ -22,7 +23,7 @@ public class ContactService {
     @Autowired
     private ValidationService validationService;
 
-    private  ContactResponse toContactResponse (Contact contact) {
+    private ContactResponse toContactResponse(Contact contact) {
         return ContactResponse.builder()
                 .id(contact.getId())
                 .firstName(contact.getFirstName())
@@ -59,5 +60,22 @@ public class ContactService {
 
         return toContactResponse(contact);
 
+    }
+
+    @Transactional
+    public ContactResponse update(User user, UpdateContactRequest request) {
+
+        validationService.validate(request);
+
+        Contact contact = contactRepository.findByUserAndId(user, request.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"Contact not found"));
+
+        contact.setFirstName(request.getFirstName());
+        contact.setLastName(request.getLastName());
+        contact.setPhone(request.getPhone());
+        contact.setEmail(request.getEmail());
+
+        contactRepository.save(contact);
+        return toContactResponse(contact);
     }
 }

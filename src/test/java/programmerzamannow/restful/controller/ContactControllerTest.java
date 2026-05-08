@@ -12,6 +12,7 @@ import programmerzamannow.restful.entity.Contact;
 import programmerzamannow.restful.entity.User;
 import programmerzamannow.restful.model.ContactResponse;
 import programmerzamannow.restful.model.CreateContactRequest;
+import programmerzamannow.restful.model.UpdateContactRequest;
 import programmerzamannow.restful.model.WebResponse;
 import programmerzamannow.restful.repository.ContactRepository;
 import programmerzamannow.restful.repository.UserRepository;
@@ -172,7 +173,7 @@ class ContactControllerTest {
         ).andExpectAll(
                 status().isOk()
         ).andDo(result -> {
-                    WebResponse<ContactResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<WebResponse<ContactResponse>>() {
+                    WebResponse<ContactResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
                     });
                     assertNull(response.getErrors());
                     assertEquals("test", response.getData().getFirstName());
@@ -180,6 +181,66 @@ class ContactControllerTest {
                     assertEquals("test", response.getData().getId());
                     assertEquals("test", response.getData().getPhone());
                     assertEquals("test@gmail.com", response.getData().getEmail());
+                }
+        );
+
+    }
+
+    @Test
+    void updateContactBadRequest() throws Exception {
+        CreateContactRequest request = new CreateContactRequest();
+        request.setFirstName("");
+        request.setEmail("salah");
+
+        mockMvc.perform(
+                put("/api/contacts/1234")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+                        .header("X-API-TOKEN", "test")
+        ).andExpectAll(
+                status().isBadRequest()
+        ).andDo(result -> {
+                    WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<WebResponse<String>>() {
+                    });
+                    assertNotNull(response.getErrors());
+                }
+        );
+    }
+
+    @Test
+    void updateContactSuccess() throws Exception {
+
+        User user = userRepository.findById("test").orElseThrow(null);
+
+        Contact contact = new Contact();
+        contact.setId("test");
+        contact.setFirstName("test");
+        contact.setLastName("test");
+        contact.setUser(user);
+        contact.setPhone("test");
+        contact.setEmail("test@gmail.com");
+
+        contactRepository.save(contact);
+
+        UpdateContactRequest request = new UpdateContactRequest();
+        request.setFirstName("bambang");
+        request.setEmail("salah@gmail.com");
+
+        mockMvc.perform(
+                put("/api/contacts/test")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+                        .header("X-API-TOKEN", "test")
+        ).andExpectAll(
+                status().isOk()
+        ).andDo(result -> {
+                    WebResponse<ContactResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+                    });
+                    assertNull(response.getErrors());
+                    assertEquals("bambang", response.getData().getFirstName());
+                     assertEquals("salah@gmail.com", response.getData().getEmail());
                 }
         );
     }
