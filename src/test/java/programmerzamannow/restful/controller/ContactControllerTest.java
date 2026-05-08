@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import programmerzamannow.restful.entity.Contact;
 import programmerzamannow.restful.entity.User;
 import programmerzamannow.restful.model.ContactResponse;
 import programmerzamannow.restful.model.CreateContactRequest;
@@ -50,7 +51,7 @@ class ContactControllerTest {
         User user = new User();
         user.setUsername("test");
         user.setName("test");
-        user.setPassword(Bcrypt.hashpw("passord", Bcrypt.gensalt()));
+        user.setPassword(Bcrypt.hashpw("password", Bcrypt.gensalt()));
         user.setToken("test");
         user.setTokenExpiredAt(System.currentTimeMillis() + 1000000000);
         userRepository.save(user);
@@ -148,5 +149,38 @@ class ContactControllerTest {
         );
     }
 
+    @Test
+    void getContactSuccess() throws Exception {
 
+        User user = userRepository.findById("test").orElseThrow(null);
+
+        Contact contact = new Contact();
+        contact.setId("test");
+        contact.setFirstName("test");
+        contact.setLastName("test");
+        contact.setUser(user);
+        contact.setPhone("test");
+        contact.setEmail("test@gmail.com");
+
+        contactRepository.save(contact);
+
+        mockMvc.perform(
+                get("/api/contacts/test")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-API-TOKEN", "test")
+        ).andExpectAll(
+                status().isOk()
+        ).andDo(result -> {
+                    WebResponse<ContactResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<WebResponse<ContactResponse>>() {
+                    });
+                    assertNull(response.getErrors());
+                    assertEquals("test", response.getData().getFirstName());
+                    assertEquals("test", response.getData().getLastName());
+                    assertEquals("test", response.getData().getId());
+                    assertEquals("test", response.getData().getPhone());
+                    assertEquals("test@gmail.com", response.getData().getEmail());
+                }
+        );
+    }
 }
