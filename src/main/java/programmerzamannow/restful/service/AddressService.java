@@ -49,6 +49,19 @@ public class AddressService {
         return toAddressResponse(address);
     }
 
+
+    public AddressResponse get(User user, String id){
+        Contact contact = contactRepository.findByUserAndId(user,id).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND,"Contact not found")
+        );
+
+        Address address = addressRepository.findByContact(contact).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND,"Address not created")
+        );
+
+        return  toAddressResponse(address);
+    }
+
     private AddressResponse toAddressResponse(Address address) {
         return AddressResponse.builder()
                 .id(address.getId())
@@ -59,4 +72,5 @@ public class AddressService {
                 .postalCode(address.getPostalCode())
                 .build();
     }
+
 }

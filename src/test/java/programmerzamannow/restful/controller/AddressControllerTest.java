@@ -52,8 +52,8 @@ class AddressControllerTest {
 
     @BeforeEach
     void setUp() {
-        contactRepository.deleteAll();
         addressRepository.deleteAll();
+        contactRepository.deleteAll();
         userRepository.deleteAll();
 
         User user = new User();
@@ -130,6 +130,62 @@ class AddressControllerTest {
 
                     Address dbCheck = addressRepository.findById("bambang").orElse(null);
                     assertEquals("Bambangg", addressResponse.getCity());
+                });
+    }
+
+
+    @Test
+    void getAddressSuccess() throws Exception {
+
+        User user1 = userRepository.findById("test").orElse(null);
+        Contact contact = contactRepository.findByUserAndId(user1,"test").orElse(null);
+
+        Address address = new Address();
+        address.setContact(contact);
+        address.setId("Bambangg");
+        address.setCity("Bambangg");
+        address.setCountry("Bambangg");
+        address.setPostalCode("Bambangg");
+        address.setProvince("Bambangg");
+        address.setStreet("Bambangg");
+
+        addressRepository.save(address);
+
+        mockMvc.perform(
+                        get("/api/contacts/test/addresses")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("X-API-TOKEN", "test")
+                )
+                .andExpectAll(
+                        status().isOk()
+                )
+                .andDo(result -> {
+                    WebResponse<AddressResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(),new TypeReference<WebResponse<AddressResponse>>(){
+                    });
+                    assertNull(response.getErrors());
+                });
+    }
+
+    @Test
+    void getBadRequest() throws Exception {
+
+        User user1 = userRepository.findById("test").orElse(null);
+        Contact contact = contactRepository.findByUserAndId(user1,"test").orElse(null);
+
+        mockMvc.perform(
+                        get("/api/contacts/test/addresses")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("X-API-TOKEN", "test")
+                )
+                .andExpectAll(
+                        status().isNotFound()
+                )
+                .andDo(result -> {
+                    WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(),new TypeReference<WebResponse<String>>(){
+                    });
+                    assertNotNull(response.getErrors());
                 });
     }
 }
