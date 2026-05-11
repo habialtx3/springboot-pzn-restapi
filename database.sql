@@ -1,3 +1,5 @@
+DROP DATABASE IF EXISTS belajar_spring_restful_api;
+
 CREATE DATABASE belajar_spring_restful_api;
 
 USE belajar_spring_restful_api;
@@ -7,7 +9,7 @@ CREATE TABLE users
     username         VARCHAR(100) NOT NULL,
     password         VARCHAR(100) NOT NULL,
     name             VARCHAR(100) NOT NULL,
-    token            VARCHAR(100) ,
+    token            VARCHAR(100),
     token_expired_at BIGINT,
     PRIMARY KEY (username),
     UNIQUE (token)
@@ -42,9 +44,13 @@ CREATE TABLE addresses
     city        VARCHAR(100),
     province    VARCHAR(100),
     country     VARCHAR(100) NOT NULL,
-    postal_code VARCHAR(100),
+    postal_code VARCHAR(10),
     PRIMARY KEY (id),
     FOREIGN KEY fk_contacts_addresses (contact_id) REFERENCES contacts (id)
 ) ENGINE InnoDB;
 
-DESC addresses
+DESC addresses;
+
+DELETE FROM addresses;
+DELETE FROM contacts;
+DELETE FROM users;
