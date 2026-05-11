@@ -13,6 +13,7 @@ import programmerzamannow.restful.model.CreateAddressRequest;
 import programmerzamannow.restful.model.UpdateAddressRequest;
 import programmerzamannow.restful.repository.AddressRepository;
 import programmerzamannow.restful.repository.ContactRepository;
+import programmerzamannow.restful.repository.UserRepository;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -27,7 +28,12 @@ public class AddressService {
     private AddressRepository addressRepository;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     private ValidationService validationService;
+    @Autowired
+    private AuthService authService;
 
     @Transactional
     public AddressResponse create(User user, CreateAddressRequest request) {
@@ -104,6 +110,18 @@ public class AddressService {
         return toAddressResponse(address);
     }
 
+    public void remove(User user, String contactId, String addressId) {
+        Contact contact = contactRepository.findByUserAndId(user, contactId).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Contact not found")
+        );
+
+        Address address = addressRepository.findByContactAndId(contact,addressId).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND,"Address not Found")
+        );
+
+        addressRepository.delete(address);
+    }
+
     private AddressResponse toAddressResponse(Address address) {
         return AddressResponse.builder()
                 .id(address.getId())
@@ -114,5 +132,6 @@ public class AddressService {
                 .postalCode(address.getPostalCode())
                 .build();
     }
+
 
 }

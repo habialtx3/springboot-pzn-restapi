@@ -300,4 +300,76 @@ class AddressControllerTest {
                     assertNotNull(response.getErrors());
                 });
     }
+
+    @Test
+    void removeAddressSuccess() throws Exception {
+
+        User user1 = userRepository.findById("test").orElse(null);
+        Contact contact = contactRepository.findByUserAndId(user1,"test").orElse(null);
+
+        Address address = new Address();
+        address.setContact(contact);
+        address.setId("Bambangg");
+        address.setCity("Bambangg");
+        address.setCountry("Bambangg");
+        address.setPostalCode("Bambangg");
+        address.setProvince("Bambangg");
+        address.setStreet("Bambangg");
+
+        addressRepository.save(address);
+
+        mockMvc.perform(
+                        delete("/api/contacts/test/addresses/Bambangg")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("X-API-TOKEN", "test")
+                )
+                .andExpectAll(
+                        status().isOk()
+                )
+                .andDo(result -> {
+                    WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(),new TypeReference<WebResponse<String>>(){
+                    });
+                    assertNull(response.getErrors());
+
+                    Address addressCheck = addressRepository.findById("Bambangg").orElse(null);
+                    assertNull(addressCheck);
+                });
+    }
+
+    @Test
+    void removeAddressNotFound() throws Exception {
+
+        User user1 = userRepository.findById("test").orElse(null);
+        Contact contact = contactRepository.findByUserAndId(user1,"test").orElse(null);
+
+        Address address = new Address();
+        address.setContact(contact);
+        address.setId("Bambangg");
+        address.setCity("Bambangg");
+        address.setCountry("Bambangg");
+        address.setPostalCode("Bambangg");
+        address.setProvince("Bambangg");
+        address.setStreet("Bambangg");
+
+        addressRepository.save(address);
+
+        mockMvc.perform(
+                        delete("/api/contacts/test/addresses/Yoru")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("X-API-TOKEN", "test")
+                )
+                .andExpectAll(
+                        status().isNotFound()
+                )
+                .andDo(result -> {
+                    WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(),new TypeReference<WebResponse<String>>(){
+                    });
+                    assertNotNull(response.getErrors());
+
+                    Address addressCheck = addressRepository.findById("Bambangg").orElse(null);
+                    assertNotNull(addressCheck);
+                });
+    }
 }
