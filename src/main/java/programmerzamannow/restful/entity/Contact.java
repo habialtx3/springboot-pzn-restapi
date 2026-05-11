@@ -32,6 +32,6 @@ public class Contact {
     @JoinColumn(name = "username", referencedColumnName = "username")
     private User user;
 
-    @OneToMany(mappedBy = "contact")
+    @OneToMany(mappedBy = "contact", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Address> addresses;
 }
