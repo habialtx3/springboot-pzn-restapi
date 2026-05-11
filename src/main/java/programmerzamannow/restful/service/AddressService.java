@@ -81,7 +81,7 @@ public class AddressService {
         );
 
         Address address = addressRepository.findById(addressId).orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Contact not found")
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Address not found")
         );
 
         address.setContact(contact);
@@ -127,7 +127,7 @@ public class AddressService {
         return AddressResponse.builder()
                 .id(address.getId())
                 .city(address.getCity())
-                .country(address.getStreet())
+                .country(address.getCountry())
                 .province(address.getProvince())
                 .street(address.getStreet())
                 .postalCode(address.getPostalCode())
@@ -143,6 +143,7 @@ public class AddressService {
         List<Address> addresses = addressRepository.findByContact(contact);
         return addresses.stream()
                 .map(address -> AddressResponse.builder()
+                        .id(address.getId())
                         .street(address.getStreet())
                         .city(address.getCity())
                         .province(address.getProvince())

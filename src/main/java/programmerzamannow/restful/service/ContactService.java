@@ -82,11 +82,22 @@ public class ContactService {
         Contact contact = contactRepository.findByUserAndId(user, request.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Contact not found"));
 
-        contact.setFirstName(request.getFirstName());
-        contact.setLastName(request.getLastName());
-        contact.setPhone(request.getPhone());
-        contact.setEmail(request.getEmail());
+        if (Objects.nonNull(request.getFirstName())) {
+            contact.setFirstName(request.getFirstName());
+        }
 
+        if (Objects.nonNull(request.getLastName())) {
+            contact.setLastName(request.getLastName());
+        }
+
+        if (Objects.nonNull(request.getPhone())) {
+            contact.setPhone(request.getPhone());
+        }
+
+        if (Objects.nonNull(request.getEmail())) {
+            contact.setEmail(request.getEmail());
+        }
+        
         contactRepository.save(contact);
         return toContactResponse(contact);
     }
@@ -119,10 +130,10 @@ public class ContactService {
         };
 
         Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
-        Page<Contact> contacts =  contactRepository.findAll(specification,pageable);
+        Page<Contact> contacts = contactRepository.findAll(specification, pageable);
         List<ContactResponse> contactResponses = contacts.getContent().stream()
                 .map(this::toContactResponse).toList();
 
-        return  new PageImpl<>(contactResponses,pageable,contacts.getTotalElements());
+        return new PageImpl<>(contactResponses, pageable, contacts.getTotalElements());
     }
 }
