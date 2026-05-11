@@ -15,6 +15,7 @@ import programmerzamannow.restful.repository.AddressRepository;
 import programmerzamannow.restful.repository.ContactRepository;
 import programmerzamannow.restful.repository.UserRepository;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -58,12 +59,12 @@ public class AddressService {
     }
 
 
-    public AddressResponse get(User user, String id) {
-        Contact contact = contactRepository.findByUserAndId(user, id).orElseThrow(
+    public AddressResponse get(User user, String contactId, String addressId) {
+        Contact contact = contactRepository.findByUserAndId(user, contactId).orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Contact not found")
         );
 
-        Address address = addressRepository.findByContact(contact).orElseThrow(
+        Address address = addressRepository.findByContactAndId(contact,addressId).orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Address not created")
         );
 
@@ -131,6 +132,24 @@ public class AddressService {
                 .street(address.getStreet())
                 .postalCode(address.getPostalCode())
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public List<AddressResponse> list(User user, String contactId) {
+        Contact contact = contactRepository.findByUserAndId(user,contactId).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Contact is not found")
+        );
+
+        List<Address> addresses = addressRepository.findByContact(contact);
+        return addresses.stream()
+                .map(address -> AddressResponse.builder()
+                        .street(address.getStreet())
+                        .city(address.getCity())
+                        .province(address.getProvince())
+                        .country(address.getCountry())
+                        .postalCode(address.getPostalCode())
+                        .build())
+                .toList();
     }
 
 

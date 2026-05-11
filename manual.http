@@ -1,0 +1,74 @@
+### Register
+
+POST http://localhost:8080/api/users
+Accept: application/json
+Content-Type: application/json
+
+{
+  "username": "reza123",
+  "Password": "password",
+  "name": "reza"
+}
+
+### Login
+
+POST http://localhost:8080/api/auth/login
+Accept: application/json
+Content-Type: application/json
+
+{
+  "username": "reza123",
+  "password": "password"
+}
+
+### Get Users
+GET http://localhost:8080/api/users/current
+Accept: application/json
+Content-Type: application/json
+X-API-TOKEN: 441884e2-2f1d-4e49-9ce2-663c16791cac
+
+
+### Update users
+PATCH http://localhost:8080/api/users/current
+Accept: application/json
+Content-Type: application/json
+X-API-TOKEN: 441884e2-2f1d-4e49-9ce2-663c16791cac
+
+{
+  "name" : "bambang"
+}
+
+### Create Contact
+POST http://localhost:8080/api/contacts
+Accept: application/json
+Content-Type: application/json
+X-API-TOKEN: 441884e2-2f1d-4e49-9ce2-663c16791cac
+
+{
+  "firstName" : "Yaml",
+  "lastName" : "Bambang",
+  "email" : "yaml@example.com",
+  "phone" : "080808080"
+}
+
+### Get Contact
+GET http://localhost:8080/api/contacts/e1d5e1f6-6532-4d95-b635-4c596da60882
+Accept: application/json
+Content-Type: application/json
+X-API-TOKEN: 441884e2-2f1d-4e49-9ce2-663c16791cac
+
+### Update Contact
+PUT http://localhost:8080/api/contacts/e1d5e1f6-6532-4d95-b635-4c596da60882
+Accept: application/json
+Content-Type: application/json
+X-API-TOKEN: 441884e2-2f1d-4e49-9ce2-663c16791cac
+
+{
+  "firstName" : "XiFuTang"
+}
+
+### Update Contact
+DELETE http://localhost:8080/api/contacts/e1d5e1f6-6532-4d95-b635-4c596da60882
+Accept: application/json
+Content-Type: application/json
+X-API-TOKEN: 441884e2-2f1d-4e49-9ce2-663c16791cac

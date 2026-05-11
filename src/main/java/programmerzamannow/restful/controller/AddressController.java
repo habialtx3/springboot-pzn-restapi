@@ -12,6 +12,8 @@ import programmerzamannow.restful.model.UpdateAddressRequest;
 import programmerzamannow.restful.model.WebResponse;
 import programmerzamannow.restful.service.AddressService;
 
+import java.util.List;
+
 @RestController
 public class AddressController {
 
@@ -35,12 +37,12 @@ public class AddressController {
     }
 
     @GetMapping(
-            path = "/api/contacts/{contactId}/addresses",
+            path = "/api/contacts/{contactId}/addresses/{addressId}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     WebResponse<AddressResponse> get(User user,
-                                     @PathVariable(name = "contactId") String contactId) {
-        AddressResponse addressResponse = addressService.get(user, contactId);
+                                     @PathVariable(name = "contactId") String contactId,@PathVariable(name = "addressId") String addressId) {
+        AddressResponse addressResponse = addressService.get(user, contactId,addressId);
         return WebResponse.<AddressResponse>builder()
                 .data(addressResponse)
                 .build();
@@ -72,4 +74,17 @@ public class AddressController {
                 .data("OK")
                 .build();
     }
+
+    @GetMapping(
+            path = "/api/contacts/{contactId}/addresses",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    WebResponse <List<AddressResponse>> list(User user,
+                           @PathVariable(name = "contactId") String contactId) {
+        List<AddressResponse> responses = addressService.list(user,contactId);
+        return WebResponse.<List<AddressResponse>>builder()
+                .data(responses)
+                .build();
+    }
+
 }

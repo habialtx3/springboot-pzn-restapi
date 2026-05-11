@@ -18,6 +18,8 @@ import programmerzamannow.restful.service.AddressService;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -89,7 +91,7 @@ class AddressControllerTest {
                         status().isBadRequest()
                 )
                 .andDo(result -> {
-                    WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(),new TypeReference<WebResponse<String>>(){
+                    WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<WebResponse<String>>() {
                     });
                     assertNotNull(response.getErrors());
                 });
@@ -99,7 +101,7 @@ class AddressControllerTest {
     void createAddressSuccess() throws Exception {
 
         User user1 = userRepository.findById("test").orElse(null);
-        Contact contact = contactRepository.findByUserAndId(user1,"test").orElse(null);
+        Contact contact = contactRepository.findByUserAndId(user1, "test").orElse(null);
         CreateAddressRequest request = new CreateAddressRequest();
         request.setContactId(contact.getId());
         request.setCity("Bambangg");
@@ -119,7 +121,7 @@ class AddressControllerTest {
                         status().isOk()
                 )
                 .andDo(result -> {
-                    WebResponse<AddressResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(),new TypeReference<WebResponse<AddressResponse>>(){
+                    WebResponse<AddressResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<WebResponse<AddressResponse>>() {
                     });
                     assertNull(response.getErrors());
 
@@ -135,7 +137,7 @@ class AddressControllerTest {
     void getAddressSuccess() throws Exception {
 
         User user1 = userRepository.findById("test").orElse(null);
-        Contact contact = contactRepository.findByUserAndId(user1,"test").orElse(null);
+        Contact contact = contactRepository.findByUserAndId(user1, "test").orElse(null);
 
         Address address = new Address();
         address.setContact(contact);
@@ -149,7 +151,7 @@ class AddressControllerTest {
         addressRepository.save(address);
 
         mockMvc.perform(
-                        get("/api/contacts/test/addresses")
+                        get("/api/contacts/test/addresses/Bambangg")
                                 .accept(MediaType.APPLICATION_JSON)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .header("X-API-TOKEN", "test")
@@ -158,7 +160,7 @@ class AddressControllerTest {
                         status().isOk()
                 )
                 .andDo(result -> {
-                    WebResponse<AddressResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(),new TypeReference<WebResponse<AddressResponse>>(){
+                    WebResponse<AddressResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<WebResponse<AddressResponse>>() {
                     });
                     assertNull(response.getErrors());
                 });
@@ -168,7 +170,7 @@ class AddressControllerTest {
     void getBadRequest() throws Exception {
 
         User user1 = userRepository.findById("test").orElse(null);
-        Contact contact = contactRepository.findByUserAndId(user1,"test").orElse(null);
+        Contact contact = contactRepository.findByUserAndId(user1, "test").orElse(null);
 
         mockMvc.perform(
                         get("/api/contacts/test/addresses")
@@ -180,7 +182,7 @@ class AddressControllerTest {
                         status().isNotFound()
                 )
                 .andDo(result -> {
-                    WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(),new TypeReference<WebResponse<String>>(){
+                    WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<WebResponse<String>>() {
                     });
                     assertNotNull(response.getErrors());
                 });
@@ -190,7 +192,7 @@ class AddressControllerTest {
     void updateAddressSuccess() throws Exception {
 
         User user1 = userRepository.findById("test").orElse(null);
-        Contact contact = contactRepository.findByUserAndId(user1,"test").orElse(null);
+        Contact contact = contactRepository.findByUserAndId(user1, "test").orElse(null);
 
         Address address = new Address();
         address.setContact(contact);
@@ -218,7 +220,7 @@ class AddressControllerTest {
                         status().isOk()
                 )
                 .andDo(result -> {
-                    WebResponse<AddressResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(),new TypeReference<WebResponse<AddressResponse>>(){
+                    WebResponse<AddressResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<WebResponse<AddressResponse>>() {
                     });
                     assertNull(response.getErrors());
                     assertEquals("Waduh", response.getData().getCity());
@@ -230,7 +232,7 @@ class AddressControllerTest {
     void updateAddressNotFound() throws Exception {
 
         User user1 = userRepository.findById("test").orElse(null);
-        Contact contact = contactRepository.findByUserAndId(user1,"test").orElse(null);
+        Contact contact = contactRepository.findByUserAndId(user1, "test").orElse(null);
 
         Address address = new Address();
         address.setContact(contact);
@@ -258,7 +260,7 @@ class AddressControllerTest {
                         status().isNotFound()
                 )
                 .andDo(result -> {
-                    WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(),new TypeReference<WebResponse<String>>(){
+                    WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<WebResponse<String>>() {
                     });
                     assertNotNull(response.getErrors());
                 });
@@ -268,7 +270,7 @@ class AddressControllerTest {
     void updateUnauthorized() throws Exception {
 
         User user1 = userRepository.findById("test").orElse(null);
-        Contact contact = contactRepository.findByUserAndId(user1,"test").orElse(null);
+        Contact contact = contactRepository.findByUserAndId(user1, "test").orElse(null);
 
         Address address = new Address();
         address.setContact(contact);
@@ -295,7 +297,7 @@ class AddressControllerTest {
                         status().isUnauthorized()
                 )
                 .andDo(result -> {
-                    WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(),new TypeReference<WebResponse<String>>(){
+                    WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<WebResponse<String>>() {
                     });
                     assertNotNull(response.getErrors());
                 });
@@ -305,7 +307,7 @@ class AddressControllerTest {
     void removeAddressSuccess() throws Exception {
 
         User user1 = userRepository.findById("test").orElse(null);
-        Contact contact = contactRepository.findByUserAndId(user1,"test").orElse(null);
+        Contact contact = contactRepository.findByUserAndId(user1, "test").orElse(null);
 
         Address address = new Address();
         address.setContact(contact);
@@ -328,7 +330,7 @@ class AddressControllerTest {
                         status().isOk()
                 )
                 .andDo(result -> {
-                    WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(),new TypeReference<WebResponse<String>>(){
+                    WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<WebResponse<String>>() {
                     });
                     assertNull(response.getErrors());
 
@@ -341,7 +343,7 @@ class AddressControllerTest {
     void removeAddressNotFound() throws Exception {
 
         User user1 = userRepository.findById("test").orElse(null);
-        Contact contact = contactRepository.findByUserAndId(user1,"test").orElse(null);
+        Contact contact = contactRepository.findByUserAndId(user1, "test").orElse(null);
 
         Address address = new Address();
         address.setContact(contact);
@@ -364,12 +366,47 @@ class AddressControllerTest {
                         status().isNotFound()
                 )
                 .andDo(result -> {
-                    WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(),new TypeReference<WebResponse<String>>(){
+                    WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<WebResponse<String>>() {
                     });
                     assertNotNull(response.getErrors());
 
                     Address addressCheck = addressRepository.findById("Bambangg").orElse(null);
                     assertNotNull(addressCheck);
+                });
+    }
+
+    @Test
+    void getListAddressSuccess() throws Exception {
+
+        User user1 = userRepository.findById("test").orElse(null);
+        Contact contact = contactRepository.findByUserAndId(user1, "test").orElse(null);
+
+        for (int i = 0; i < 10; i++) {
+            Address address = new Address();
+            address.setContact(contact);
+            address.setId("Bambangg-" + i);
+            address.setCity("Bambangg");
+            address.setCountry("Bambangg");
+            address.setPostalCode("Bambangg");
+            address.setProvince("Bambangg");
+            address.setStreet("Bambangg");
+            addressRepository.save(address);
+        }
+
+        mockMvc.perform(
+                        get("/api/contacts/test/addresses")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("X-API-TOKEN", "test")
+                )
+                .andExpectAll(
+                        status().isOk()
+                )
+                .andDo(result -> {
+                    WebResponse<List<AddressResponse>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<WebResponse<List<AddressResponse>>>() {
+                    });
+                    assertNull(response.getErrors());
+                    assertEquals(10,response.getData().size());
                 });
     }
 }
