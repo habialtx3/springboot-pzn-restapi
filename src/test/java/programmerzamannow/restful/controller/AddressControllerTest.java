@@ -10,10 +10,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import programmerzamannow.restful.entity.Address;
 import programmerzamannow.restful.entity.Contact;
 import programmerzamannow.restful.entity.User;
-import programmerzamannow.restful.model.AddressResponse;
-import programmerzamannow.restful.model.CreateAddressRequest;
-import programmerzamannow.restful.model.CreateContactRequest;
-import programmerzamannow.restful.model.WebResponse;
+import programmerzamannow.restful.model.*;
 import programmerzamannow.restful.repository.AddressRepository;
 import programmerzamannow.restful.repository.ContactRepository;
 import programmerzamannow.restful.repository.UserRepository;
@@ -181,6 +178,121 @@ class AddressControllerTest {
                 )
                 .andExpectAll(
                         status().isNotFound()
+                )
+                .andDo(result -> {
+                    WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(),new TypeReference<WebResponse<String>>(){
+                    });
+                    assertNotNull(response.getErrors());
+                });
+    }
+
+    @Test
+    void updateAddressSuccess() throws Exception {
+
+        User user1 = userRepository.findById("test").orElse(null);
+        Contact contact = contactRepository.findByUserAndId(user1,"test").orElse(null);
+
+        Address address = new Address();
+        address.setContact(contact);
+        address.setId("Bambangg");
+        address.setCity("Bambangg");
+        address.setCountry("Bambangg");
+        address.setPostalCode("Bambangg");
+        address.setProvince("Bambangg");
+        address.setStreet("Bambangg");
+
+        addressRepository.save(address);
+
+        UpdateAddressRequest request = new UpdateAddressRequest();
+        request.setCity("Waduh");
+        request.setStreet("Moment");
+
+        mockMvc.perform(
+                        put("/api/contacts/test/addresses/Bambangg")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request))
+                                .header("X-API-TOKEN", "test")
+                )
+                .andExpectAll(
+                        status().isOk()
+                )
+                .andDo(result -> {
+                    WebResponse<AddressResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(),new TypeReference<WebResponse<AddressResponse>>(){
+                    });
+                    assertNull(response.getErrors());
+                    assertEquals("Waduh", response.getData().getCity());
+                    assertEquals("Moment", response.getData().getStreet());
+                });
+    }
+
+    @Test
+    void updateAddressNotFound() throws Exception {
+
+        User user1 = userRepository.findById("test").orElse(null);
+        Contact contact = contactRepository.findByUserAndId(user1,"test").orElse(null);
+
+        Address address = new Address();
+        address.setContact(contact);
+        address.setId("Bambangg");
+        address.setCity("Bambangg");
+        address.setCountry("Bambangg");
+        address.setPostalCode("Bambangg");
+        address.setProvince("Bambangg");
+        address.setStreet("Bambangg");
+
+        addressRepository.save(address);
+
+        UpdateAddressRequest request = new UpdateAddressRequest();
+        request.setCity("Waduh");
+        request.setStreet("Moment");
+
+        mockMvc.perform(
+                        put("/api/contacts/test/addresses/Naegae")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request))
+                                .header("X-API-TOKEN", "test")
+                )
+                .andExpectAll(
+                        status().isNotFound()
+                )
+                .andDo(result -> {
+                    WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(),new TypeReference<WebResponse<String>>(){
+                    });
+                    assertNotNull(response.getErrors());
+                });
+    }
+
+    @Test
+    void updateUnauthorized() throws Exception {
+
+        User user1 = userRepository.findById("test").orElse(null);
+        Contact contact = contactRepository.findByUserAndId(user1,"test").orElse(null);
+
+        Address address = new Address();
+        address.setContact(contact);
+        address.setId("Bambangg");
+        address.setCity("Bambangg");
+        address.setCountry("Bambangg");
+        address.setPostalCode("Bambangg");
+        address.setProvince("Bambangg");
+        address.setStreet("Bambangg");
+
+        addressRepository.save(address);
+
+        UpdateAddressRequest request = new UpdateAddressRequest();
+        request.setCity("Waduh");
+        request.setStreet("Moment");
+
+        mockMvc.perform(
+                        put("/api/contacts/test/addresses/Naegae")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request))
+                )
+                .andExpectAll(
+                        status().isUnauthorized()
                 )
                 .andDo(result -> {
                     WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(),new TypeReference<WebResponse<String>>(){

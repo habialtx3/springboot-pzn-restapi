@@ -10,9 +10,11 @@ import programmerzamannow.restful.entity.Contact;
 import programmerzamannow.restful.entity.User;
 import programmerzamannow.restful.model.AddressResponse;
 import programmerzamannow.restful.model.CreateAddressRequest;
+import programmerzamannow.restful.model.UpdateAddressRequest;
 import programmerzamannow.restful.repository.AddressRepository;
 import programmerzamannow.restful.repository.ContactRepository;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -31,8 +33,8 @@ public class AddressService {
     public AddressResponse create(User user, CreateAddressRequest request) {
         validationService.validate(request);
 
-        Contact contact = contactRepository.findByUserAndId(user,request.getContactId()).orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND,"Contact is not found")
+        Contact contact = contactRepository.findByUserAndId(user, request.getContactId()).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Contact is not found")
         );
 
         Address address = new Address();
@@ -50,16 +52,56 @@ public class AddressService {
     }
 
 
-    public AddressResponse get(User user, String id){
-        Contact contact = contactRepository.findByUserAndId(user,id).orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND,"Contact not found")
+    public AddressResponse get(User user, String id) {
+        Contact contact = contactRepository.findByUserAndId(user, id).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Contact not found")
         );
 
         Address address = addressRepository.findByContact(contact).orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND,"Address not created")
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Address not created")
         );
 
-        return  toAddressResponse(address);
+        return toAddressResponse(address);
+    }
+
+    @Transactional
+    public AddressResponse update(User user, UpdateAddressRequest request, String contactId, String addressId) {
+
+        validationService.validate(request);
+
+        Contact contact = contactRepository.findByUserAndId(user, contactId).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Contact not found")
+        );
+
+        Address address = addressRepository.findById(addressId).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Contact not found")
+        );
+
+        address.setContact(contact);
+
+        if (Objects.nonNull(request.getCity())) {
+            address.setCity(request.getCity());
+        }
+
+        if (Objects.nonNull(request.getStreet())) {
+            address.setStreet(request.getStreet());
+        }
+
+        if (Objects.nonNull(request.getCountry())) {
+            address.setCountry(request.getCountry());
+        }
+
+        if (Objects.nonNull(request.getPostalCode())) {
+            address.setPostalCode(request.getPostalCode());
+        }
+
+        if (Objects.nonNull(request.getProvince())) {
+            address.setProvince(request.getProvince());
+        }
+
+        addressRepository.save(address);
+
+        return toAddressResponse(address);
     }
 
     private AddressResponse toAddressResponse(Address address) {
