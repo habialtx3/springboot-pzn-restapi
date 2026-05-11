@@ -1,3 +1,5 @@
+DROP DATABASE IF EXISTS belajar_spring_restful_api;
+
 CREATE DATABASE belajar_spring_restful_api;
 
 USE belajar_spring_restful_api;
@@ -42,7 +44,7 @@ CREATE TABLE addresses
     city        VARCHAR(100),
     province    VARCHAR(100),
     country     VARCHAR(100) NOT NULL,
-    postal_code VARCHAR(100),
+    postal_code VARCHAR(10),
     PRIMARY KEY (id),
     FOREIGN KEY fk_contacts_addresses (contact_id) REFERENCES contacts (id)
 ) ENGINE InnoDB;

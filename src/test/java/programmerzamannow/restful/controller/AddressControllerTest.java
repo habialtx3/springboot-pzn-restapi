@@ -1,0 +1,135 @@
+package programmerzamannow.restful.controller;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import programmerzamannow.restful.entity.Address;
+import programmerzamannow.restful.entity.Contact;
+import programmerzamannow.restful.entity.User;
+import programmerzamannow.restful.model.AddressResponse;
+import programmerzamannow.restful.model.CreateAddressRequest;
+import programmerzamannow.restful.model.CreateContactRequest;
+import programmerzamannow.restful.model.WebResponse;
+import programmerzamannow.restful.repository.AddressRepository;
+import programmerzamannow.restful.repository.ContactRepository;
+import programmerzamannow.restful.repository.UserRepository;
+import programmerzamannow.restful.service.AddressService;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+
+@SpringBootTest
+@AutoConfigureMockMvc
+class AddressControllerTest {
+
+    @Autowired
+    private AddressService addressService;
+
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private AddressRepository addressRepository;
+
+    @Autowired
+    private ContactRepository contactRepository;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @BeforeEach
+    void setUp() {
+        contactRepository.deleteAll();
+        addressRepository.deleteAll();
+        userRepository.deleteAll();
+
+        User user = new User();
+        user.setUsername("test");
+        user.setName("test");
+        user.setPassword("test");
+        user.setToken("test");
+        user.setTokenExpiredAt(System.currentTimeMillis() + 10000000);
+        userRepository.save(user);
+
+        Contact contact = new Contact();
+        contact.setId("test");
+        contact.setFirstName("test");
+        contact.setLastName("test");
+        contact.setUser(user);
+        contact.setPhone("test");
+        contact.setEmail("test@gmail.com");
+
+        contactRepository.save(contact);
+    }
+
+    @Test
+    void createAddressBadRequest() throws Exception {
+
+        CreateAddressRequest request = new CreateAddressRequest();
+        request.setCity("Bambangg");
+
+        mockMvc.perform(
+                        post("/api/contacts/test/addresses")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request))
+                                .header("X-API-TOKEN", "test")
+                )
+                .andExpectAll(
+                        status().isBadRequest()
+                )
+                .andDo(result -> {
+                    WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(),new TypeReference<WebResponse<String>>(){
+                    });
+                    assertNotNull(response.getErrors());
+                });
+    }
+
+    @Test
+    void createAddressSuccess() throws Exception {
+
+        User user1 = userRepository.findById("test").orElse(null);
+        Contact contact = contactRepository.findByUserAndId(user1,"test").orElse(null);
+        CreateAddressRequest request = new CreateAddressRequest();
+        request.setContactId(contact.getId());
+        request.setCity("Bambangg");
+        request.setCountry("Bambangg");
+        request.setPostalCode("Bambangg");
+        request.setProvince("Bambangg");
+        request.setStreet("Bambangg");
+
+        mockMvc.perform(
+                        post("/api/contacts/test/addresses")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request))
+                                .header("X-API-TOKEN", "test")
+                )
+                .andExpectAll(
+                        status().isOk()
+                )
+                .andDo(result -> {
+                    WebResponse<AddressResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(),new TypeReference<WebResponse<AddressResponse>>(){
+                    });
+                    assertNull(response.getErrors());
+
+                    AddressResponse addressResponse = response.getData();
+
+                    Address dbCheck = addressRepository.findById("bambang").orElse(null);
+                    assertEquals("Bambangg", addressResponse.getCity());
+                });
+    }
+}
